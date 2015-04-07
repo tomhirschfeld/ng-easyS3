@@ -1,10 +1,13 @@
 <div class="upload-wrap">
-  <button class="btn btn-primary" type="button"><span ng-if="!filename">Choose file</span><span ng-if="filename">Replace file</span></button>
-  <a ng-href="{{ filename }}" target="_blank" class="" ng-if="filename" > Stored file </a>
-  <div class="progress">
-    <div class="progress-bar progress-bar-striped" ng-class="{active: uploading}" role="progressbar" aria-valuemin="0" aria-valuemax="100" style="width: {{ progress }}%; margin-top: 10px" ng-class="barClass()">
+  <button class="btn btn-primary" type="button" style="margin-bottom: 10px" id="s3-button-target">
+    <span>Choose file</span>
+  </button>
+
+  <div id="s3-drop-target" style="height: 300px; width: 300px; background-color: #eee"> drop file here</div>
+  <div class="progress" >
+    <div class="progress-bar progress-bar-striped" ng-class="{active: uploading}" role="progressbar" aria-valuemin="0" aria-valuemax="100" style="width: {{ progress }}%;" ng-class="barClass()">
       <span class="sr-only">{{progress}}% Complete</span>
     </div>
   </div>
-  <input type="file" style="display: none"/>
+  <input type="file" style="display: none" id="s3-file-target"/>
 </div>

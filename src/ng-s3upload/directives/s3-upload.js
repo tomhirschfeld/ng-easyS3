@@ -1,3 +1,4 @@
+
 angular.module('ngS3upload.directives', []).
   directive('s3Upload', ['$parse', 'S3Uploader', 'ngS3Config', function ($parse, S3Uploader, ngS3Config) {
     return {
@@ -40,11 +41,52 @@ angular.module('ngS3upload.directives', []).
             var bucket = scope.$eval(attrs.bucket);
 
             // Bind the button click event
-            var button = angular.element(element.children()[0]),
+            var button = angular.element(document.getElementById('s3-button-target')),
               file = angular.element(element.find("input")[0]);
+            console.log(button);
             button.bind('click', function (e) {
+              console.log('test this');
+
               file[0].click();
             });
+
+            function Init() {
+
+                var fileselect = document.getElementById("s3-file-target"),
+                  filedrag = document.getElementById("s3-drop-target");
+
+                // file drop
+                // filedrag.addEventListener("dragover", FileDragHover, false);
+                // filedrag.addEventListener("dragleave", FileDragHover, false);
+                filedrag.addEventListener("drop", FileSelectHandler, false);
+                filedrag.style.display = "block";
+
+
+            }
+
+            // function FileDragHover(e) {
+            //   e.stopPropagation();
+            //   e.preventDefault();
+            //   e.target.className = (e.type == "dragover" ? "hover" : "");
+            // }
+
+            if (window.File && window.FileList && window.FileReader) {
+              Init();
+            }
+
+            // file selection
+            function FileSelectHandler(e) {
+
+              // cancel event and hover styling
+              // FileDragHover(e);
+
+              // fetch FileList object
+              var files = e.target.files || e.dataTransfer.files;
+
+              console.log(files);
+
+            }
+
 
             // Update the scope with the view value
             ngModel.$render = function () {
@@ -72,7 +114,7 @@ angular.module('ngS3upload.directives', []).
                 }
 
                 var s3Uri = 'https://' + bucket + '.s3.amazonaws.com/';
-                var key = opts.targetFilename ? scope.$eval(opts.targetFilename) : opts.folder + (new Date()).getTime() + '-' + S3Uploader.randomString(16) + "." + ext;
+                var key = opts.folder + (new Date()).getTime() + '-' + S3Uploader.randomString(16) + "." + ext;
                 S3Uploader.upload(scope,
                     s3Uri,
                     key,
