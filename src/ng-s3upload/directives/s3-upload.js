@@ -42,12 +42,12 @@ angular.module('ngS3upload.directives', []).
 
             // Bind the button click event
             var button = angular.element(document.getElementById('s3-button-target')),
-              file = angular.element(element.find("input")[0]);
+              file = angular.element(element.find("input"))[0];
             console.log(button);
             button.bind('click', function (e) {
               console.log('test this');
 
-              file[0].click();
+              file.click();
             });
 
             function Init() {
@@ -56,19 +56,19 @@ angular.module('ngS3upload.directives', []).
                   filedrag = document.getElementById("s3-drop-target");
 
                 // file drop
-                // filedrag.addEventListener("dragover", FileDragHover, false);
-                // filedrag.addEventListener("dragleave", FileDragHover, false);
+                filedrag.addEventListener("dragover", FileDragHover, false);
+                filedrag.addEventListener("dragleave", FileDragHover, false);
                 filedrag.addEventListener("drop", FileSelectHandler, false);
                 filedrag.style.display = "block";
 
 
             }
 
-            // function FileDragHover(e) {
-            //   e.stopPropagation();
-            //   e.preventDefault();
-            //   e.target.className = (e.type == "dragover" ? "hover" : "");
-            // }
+            function FileDragHover(e) {
+              e.stopPropagation();
+              e.preventDefault();
+              e.target.className = (e.type == "dragover" ? "hover" : "");
+            }
 
             if (window.File && window.FileList && window.FileReader) {
               Init();
@@ -78,13 +78,10 @@ angular.module('ngS3upload.directives', []).
             function FileSelectHandler(e) {
 
               // cancel event and hover styling
-              // FileDragHover(e);
+              FileDragHover(e);
 
               // fetch FileList object
-              var files = e.target.files || e.dataTransfer.files;
-
-              console.log(files);
-
+              uploadFile((e.target.files || e.dataTransfer.files)[0]);
             }
 
 
@@ -93,8 +90,13 @@ angular.module('ngS3upload.directives', []).
               scope.filename = ngModel.$viewValue;
             };
 
-            var uploadFile = function () {
-              var selectedFile = file[0].files[0];
+            function uploadFile(selectedFile) {
+              if(arguments.length === 0){
+                selectedFile = file.files[0];
+                console.log('testing here yo');
+                console.log(file.files[0]);
+              }
+              console.log(selectedFile);
               var filename = selectedFile.name;
               var ext = filename.split('.').pop();
 
