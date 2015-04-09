@@ -11,7 +11,7 @@ module.exports = function (grunt) {
     ngtemplates:  {
       app:        {
         cwd:      'src/<%= library.name %>/templates',
-        src:      'theme/**.html',
+        src:      '**.html',
         dest:     '.tmp/templates.js',
         options: {
           module:   'ngS3upload'

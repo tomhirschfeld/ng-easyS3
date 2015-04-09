@@ -32,21 +32,24 @@ angular.module('ngS3upload.directives', []).
               submitOnChange: true,
               getOptionsUri: '/getS3Options',
               getManualOptions: null,
+              mimeTypes: [],
               acl: 'public-read',
               uploadingKey: 'uploading',
               folder: '',
+              buttonText: 'Select File',
+              dropText: 'Drop File Here',
+              errorText: 'Incorrect File Type',
               enableValidation: true,
               targetFilename: null
             }, opts);
             var bucket = scope.$eval(attrs.bucket);
+            scope.buttonText = opts.buttonText;
+            scope.dropText = opts.dropText;
 
             // Bind the button click event
             var button = angular.element(document.getElementById('s3-button-target')),
               file = angular.element(element.find("input"))[0];
-            console.log(button);
             button.bind('click', function (e) {
-              console.log('test this');
-
               file.click();
             });
 
@@ -91,14 +94,30 @@ angular.module('ngS3upload.directives', []).
             };
 
             function uploadFile(selectedFile) {
+              var filename, mimeTypeMatch, ext;
               if(arguments.length === 0){
                 selectedFile = file.files[0];
-                console.log('testing here yo');
-                console.log(file.files[0]);
               }
-              console.log(selectedFile);
-              var filename = selectedFile.name;
-              var ext = filename.split('.').pop();
+              filename = selectedFile.name;
+              mimeTypeMatch = false;
+              if(opts.mimeTypes.length > 0){
+                mimeTypeMatch = opts.mimeTypes.some(function(element){
+                  if(selectedFile.type.match(element)){
+                    return true;
+                  }
+                  return false;
+                });
+              } else {
+                mimeTypeMatch = true;
+              }
+
+              if(!mimeTypeMatch){
+                if(typeof(sweetAlert) === 'function'){
+                  return sweetAlert('File Type Error', opts.errorText,  'error');
+                }
+                return alert('File Type Error: ' + opts.errorText);
+              }
+              ext = filename.split('.').pop();
 
               if(angular.isObject(opts.getManualOptions)) {
                 _upload(opts.getManualOptions);
@@ -116,7 +135,7 @@ angular.module('ngS3upload.directives', []).
                 }
 
                 var s3Uri = 'https://' + bucket + '.s3.amazonaws.com/';
-                var key = opts.folder + (new Date()).getTime() + '-' + S3Uploader.randomString(16) + "." + ext;
+                var key = opts.folder + (new Date()).getTime() + '-' + S3Uploader.randomString(16) + '.' + ext;
                 S3Uploader.upload(scope,
                     s3Uri,
                     key,
@@ -161,9 +180,6 @@ angular.module('ngS3upload.directives', []).
           }
         };
       },
-      templateUrl: function(elm, attrs) {
-        var theme = attrs.theme || ngS3Config.theme;
-        return 'theme/' + theme + '.html';
-      }
+      templateUrl: 'ng-s3upload.html'
     };
   }]);

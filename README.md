@@ -133,17 +133,15 @@ attributes:
   * folder - optional, specifies a folder inside the bucket the save the file to
   * enableValidation - optional, set to "false" in order to disable the field validation.
   * targetFilename - An optional attribute for the target filename. if provided the file will be renamed to the provided value instead of having the file original filename.
+  * mimeTypes - An array of mimetypes to accept and upload, acts as a whitelist. If empty or ignored, defaults to all
+  * buttonText - text to display on button for file selection, defaults to "Select File" when not included
+  * dropText - text to display on drag/drop panel, defaults to "Drop File Here"
+  * errorText - The alert displayed when an incorrect file type is selected is "File Type Error: {errorText}"
 
-## Themes
-ng-s3upload allows to customize the directive template using themes. Currently the available themes are: bootstrap2, bootstrap3
+####sweetAlert:
+if sweetAlert is available on the global scope, then the alert displayed when a user selects an incorrect file
 
-#### How to?
 
-```javascript
-app.config(function(ngS3Config) {
-  ngS3Config.theme = 'bootstrap3';
-});
-```
 
-[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/asafdav/ng-s3upload/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+
 
