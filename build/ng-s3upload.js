@@ -1,291 +1,358 @@
-(function(window, document) {
-
 // Create all modules and define dependencies to make sure they exist
 // and are loaded in the correct order to satisfy dependency injection
 // before all nested files are concatenated by Grunt
 
 // Config
-angular.module('ngS3upload.config', []).
-  value('ngS3upload.config', {
-      debug: true
-  }).
-  config(['$compileProvider', function($compileProvider){
-    if (angular.isDefined($compileProvider.urlSanitizationWhitelist)) {
-      $compileProvider.urlSanitizationWhitelist(/^\s*(https?|ftp|mailto|file|data):/);
-    } else {
-      $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|file|data):/);
-    }
-  }]);
+'use strict';
+
+angular.module('ngS3upload.config', []).value('ngS3upload.config', {
+  debug: true
+}).config(['$compileProvider', function ($compileProvider) {
+  if (angular.isDefined($compileProvider.urlSanitizationWhitelist)) {
+    $compileProvider.urlSanitizationWhitelist(/^\s*(https?|ftp|mailto|file|data):/);
+  } else {
+    $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|file|data):/);
+  }
+}]);
 
 // Modules
 angular.module('ngS3upload.directives', []);
-angular.module('ngS3upload',
-    [
-        'ngS3upload.config',
-        'ngS3upload.directives',
-        'ngS3upload.services',
-        'ngSanitize'
-    ]);
-angular.module('ngS3upload.config', []).
-  constant('ngS3Config', {
-    theme: 'bootstrap2'
-  });angular.module('ngS3upload.services', []).
-  service('S3Uploader', ['$http', '$q', '$window', function ($http, $q, $window) {
-    this.uploads = 0;
-    var self = this;
+angular.module('ngS3upload', ['ngS3upload.config', 'ngS3upload.directives', 'ngS3upload.services', 'ngSanitize']);
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbInNyYy9uZy1zM3VwbG9hZC9uZy1zM3VwbG9hZC5qcyJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiOzs7Ozs7O0FBS0EsT0FBTyxDQUFDLE1BQU0sQ0FBQyxtQkFBbUIsRUFBRSxFQUFFLENBQUMsQ0FDckMsS0FBSyxDQUFDLG1CQUFtQixFQUFFO0FBQ3ZCLE9BQUssRUFBRSxJQUFJO0NBQ2QsQ0FBQyxDQUNGLE1BQU0sQ0FBQyxDQUFDLGtCQUFrQixFQUFFLFVBQVMsZ0JBQWdCLEVBQUM7QUFDcEQsTUFBSSxPQUFPLENBQUMsU0FBUyxDQUFDLGdCQUFnQixDQUFDLHdCQUF3QixDQUFDLEVBQUU7QUFDaEUsb0JBQWdCLENBQUMsd0JBQXdCLENBQUMsb0NBQW9DLENBQUMsQ0FBQztHQUNqRixNQUFNO0FBQ0wsb0JBQWdCLENBQUMsMEJBQTBCLENBQUMsb0NBQW9DLENBQUMsQ0FBQztHQUNuRjtDQUNGLENBQUMsQ0FBQyxDQUFDOzs7QUFHTixPQUFPLENBQUMsTUFBTSxDQUFDLHVCQUF1QixFQUFFLEVBQUUsQ0FBQyxDQUFDO0FBQzVDLE9BQU8sQ0FBQyxNQUFNLENBQUMsWUFBWSxFQUN2QixDQUNJLG1CQUFtQixFQUNuQix1QkFBdUIsRUFDdkIscUJBQXFCLEVBQ3JCLFlBQVksQ0FDZixDQUFDLENBQUMiLCJmaWxlIjoic3JjL25nLXMzdXBsb2FkL25nLXMzdXBsb2FkLmpzIiwic291cmNlc0NvbnRlbnQiOlsiLy8gQ3JlYXRlIGFsbCBtb2R1bGVzIGFuZCBkZWZpbmUgZGVwZW5kZW5jaWVzIHRvIG1ha2Ugc3VyZSB0aGV5IGV4aXN0XG4vLyBhbmQgYXJlIGxvYWRlZCBpbiB0aGUgY29ycmVjdCBvcmRlciB0byBzYXRpc2Z5IGRlcGVuZGVuY3kgaW5qZWN0aW9uXG4vLyBiZWZvcmUgYWxsIG5lc3RlZCBmaWxlcyBhcmUgY29uY2F0ZW5hdGVkIGJ5IEdydW50XG5cbi8vIENvbmZpZ1xuYW5ndWxhci5tb2R1bGUoJ25nUzN1cGxvYWQuY29uZmlnJywgW10pLlxuICB2YWx1ZSgnbmdTM3VwbG9hZC5jb25maWcnLCB7XG4gICAgICBkZWJ1ZzogdHJ1ZVxuICB9KS5cbiAgY29uZmlnKFsnJGNvbXBpbGVQcm92aWRlcicsIGZ1bmN0aW9uKCRjb21waWxlUHJvdmlkZXIpe1xuICAgIGlmIChhbmd1bGFyLmlzRGVmaW5lZCgkY29tcGlsZVByb3ZpZGVyLnVybFNhbml0aXphdGlvbldoaXRlbGlzdCkpIHtcbiAgICAgICRjb21waWxlUHJvdmlkZXIudXJsU2FuaXRpemF0aW9uV2hpdGVsaXN0KC9eXFxzKihodHRwcz98ZnRwfG1haWx0b3xmaWxlfGRhdGEpOi8pO1xuICAgIH0gZWxzZSB7XG4gICAgICAkY29tcGlsZVByb3ZpZGVyLmFIcmVmU2FuaXRpemF0aW9uV2hpdGVsaXN0KC9eXFxzKihodHRwcz98ZnRwfG1haWx0b3xmaWxlfGRhdGEpOi8pO1xuICAgIH1cbiAgfV0pO1xuXG4vLyBNb2R1bGVzXG5hbmd1bGFyLm1vZHVsZSgnbmdTM3VwbG9hZC5kaXJlY3RpdmVzJywgW10pO1xuYW5ndWxhci5tb2R1bGUoJ25nUzN1cGxvYWQnLFxuICAgIFtcbiAgICAgICAgJ25nUzN1cGxvYWQuY29uZmlnJyxcbiAgICAgICAgJ25nUzN1cGxvYWQuZGlyZWN0aXZlcycsXG4gICAgICAgICduZ1MzdXBsb2FkLnNlcnZpY2VzJyxcbiAgICAgICAgJ25nU2FuaXRpemUnXG4gICAgXSk7XG4iXX0=;
+'use strict';
 
-    this.getUploadOptions = function (uri) {
-      var deferred = $q.defer();
-      $http.get(uri).
-        success(function (response, status) {
-          deferred.resolve(response);
-        }).error(function (error, status) {
-          deferred.reject(error);
-        });
+angular.module('ngS3upload.config', []).constant('ngS3Config', {
+  theme: 'bootstrap3'
+});
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbInNyYy9uZy1zM3VwbG9hZC9zZXJ2aWNlcy9zMy1jb25maWcuanMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6Ijs7QUFBQSxPQUFPLENBQUMsTUFBTSxDQUFDLG1CQUFtQixFQUFFLEVBQUUsQ0FBQyxDQUNyQyxRQUFRLENBQUMsWUFBWSxFQUFFO0FBQ3JCLE9BQUssRUFBRSxZQUFZO0NBQ3BCLENBQUMsQ0FBQyIsImZpbGUiOiJzcmMvbmctczN1cGxvYWQvc2VydmljZXMvczMtY29uZmlnLmpzIiwic291cmNlc0NvbnRlbnQiOlsiYW5ndWxhci5tb2R1bGUoJ25nUzN1cGxvYWQuY29uZmlnJywgW10pLlxuICBjb25zdGFudCgnbmdTM0NvbmZpZycsIHtcbiAgICB0aGVtZTogJ2Jvb3RzdHJhcDMnXG4gIH0pO1xuIl19;
+'use strict';
 
-      return deferred.promise;
-    };
+angular.module('ngS3upload.services', []).service('S3Uploader', ['$http', '$q', '$window', function ($http, $q, $window) {
+  this.uploads = 0;
+  var self = this;
 
-    this.randomString = function (length) {
-      var chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-      var result = '';
-      for (var i = length; i > 0; --i) result += chars[Math.round(Math.random() * (chars.length - 1))];
+  this.getUploadOptions = function (uri) {
+    var deferred = $q.defer();
+    $http.get(uri).success(function (response, status) {
+      deferred.resolve(response);
+    }).error(function (error, status) {
+      deferred.reject(error);
+    });
 
-      return result;
-    };
+    return deferred.promise;
+  };
 
+  this.randomString = function (length) {
+    var chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    var result = '';
+    for (var i = length; i > 0; --i) result += chars[Math.round(Math.random() * (chars.length - 1))];
 
-    this.upload = function (scope, uri, key, acl, type, accessKey, policy, signature, file) {
-      var deferred = $q.defer();
-      scope.attempt = true;
+    return result;
+  };
 
-      var fd = new FormData();
-      fd.append('key', key);
-      fd.append('acl', acl);
-      fd.append('Content-Type', file.type);
-      fd.append('AWSAccessKeyId', accessKey);
-      fd.append('policy', policy);
-      fd.append('signature', signature);
-      fd.append("file", file);
+  this.upload = function (scope, uri, key, acl, type, accessKey, policy, signature, file) {
+    var deferred = $q.defer();
+    scope.attempt = true;
 
-      var xhr = new XMLHttpRequest();
-      xhr.upload.addEventListener("progress", uploadProgress, false);
-      xhr.addEventListener("load", uploadComplete, false);
-      xhr.addEventListener("error", uploadFailed, false);
-      xhr.addEventListener("abort", uploadCanceled, false);
-      scope.$emit('s3upload:start', xhr);
+    var fd = new FormData();
+    fd.append('key', key);
+    fd.append('acl', acl);
+    fd.append('Content-Type', file.type);
+    fd.append('AWSAccessKeyId', accessKey);
+    fd.append('policy', policy);
+    fd.append('signature', signature);
+    fd.append('file', file);
 
-      // Define event handlers
-      function uploadProgress(e) {
-        scope.$apply(function () {
-          if (e.lengthComputable) {
-            scope.progress = Math.round(e.loaded * 100 / e.total);
-          } else {
-            scope.progress = 'unable to compute';
-          }
-          var msg = {type: 'progress', value: scope.progress};
-          scope.$emit('s3upload:progress', msg);
-          if (typeof deferred.notify === 'function') {
-            deferred.notify(msg);
-          }
+    var xhr = new XMLHttpRequest();
+    xhr.upload.addEventListener('progress', uploadProgress, false);
+    xhr.addEventListener('load', uploadComplete, false);
+    xhr.addEventListener('error', uploadFailed, false);
+    xhr.addEventListener('abort', uploadCanceled, false);
+    scope.$emit('s3upload:start', xhr);
 
-        });
-      }
-      function uploadComplete(e) {
-        var xhr = e.srcElement || e.target;
-        scope.$apply(function () {
-          self.uploads--;
-          scope.uploading = false;
-          if (xhr.status === 204) { // successful upload
-            scope.success = true;
-            deferred.resolve(xhr);
-            scope.$emit('s3upload:success', xhr, {path: uri + key});
-          } else {
-            scope.success = false;
-            deferred.reject(xhr);
-            scope.$emit('s3upload:error', xhr);
-          }
-        });
-      }
-      function uploadFailed(e) {
-        var xhr = e.srcElement || e.target;
-        scope.$apply(function () {
-          self.uploads--;
-          scope.uploading = false;
+    // Define event handlers
+    function uploadProgress(e) {
+      scope.$apply(function () {
+        if (e.lengthComputable) {
+          scope.progress = Math.round(e.loaded * 100 / e.total);
+        } else {
+          scope.progress = 'unable to compute';
+        }
+        var msg = { type: 'progress', value: scope.progress };
+        scope.$emit('s3upload:progress', msg);
+        if (typeof deferred.notify === 'function') {
+          deferred.notify(msg);
+        }
+      });
+    }
+    function uploadComplete(e) {
+      var xhr = e.srcElement || e.target;
+      scope.$apply(function () {
+        self.uploads--;
+        scope.uploading = false;
+        if (xhr.status === 204) {
+          // successful upload
+          scope.success = true;
+          deferred.resolve(xhr);
+          scope.$emit('s3upload:success', xhr, { path: uri + key });
+        } else {
           scope.success = false;
           deferred.reject(xhr);
           scope.$emit('s3upload:error', xhr);
-        });
-      }
-      function uploadCanceled(e) {
-        var xhr = e.srcElement || e.target;
-        scope.$apply(function () {
-          self.uploads--;
-          scope.uploading = false;
-          scope.success = false;
-          deferred.reject(xhr);
-          scope.$emit('s3upload:abort', xhr);
-        });
-      }
+        }
+      });
+    }
+    function uploadFailed(e) {
+      var xhr = e.srcElement || e.target;
+      scope.$apply(function () {
+        self.uploads--;
+        scope.uploading = false;
+        scope.success = false;
+        deferred.reject(xhr);
+        scope.$emit('s3upload:error', xhr);
+      });
+    }
+    function uploadCanceled(e) {
+      var xhr = e.srcElement || e.target;
+      scope.$apply(function () {
+        self.uploads--;
+        scope.uploading = false;
+        scope.success = false;
+        deferred.reject(xhr);
+        scope.$emit('s3upload:abort', xhr);
+      });
+    }
 
-      // Send the file
-      scope.uploading = true;
-      this.uploads++;
-      xhr.open('POST', uri, true);
-      xhr.send(fd);
+    // Send the file
+    scope.uploading = true;
+    this.uploads++;
+    xhr.open('POST', uri, true);
+    xhr.send(fd);
 
-      return deferred.promise;
-    };
+    return deferred.promise;
+  };
 
-    this.isUploading = function () {
-      return this.uploads > 0;
-    };
-  }]);
-angular.module('ngS3upload.directives', []).
-  directive('s3Upload', ['$parse', 'S3Uploader', 'ngS3Config', function ($parse, S3Uploader, ngS3Config) {
-    return {
-      restrict: 'AC',
-      require: '?ngModel',
-      replace: true,
-      transclude: false,
-      scope: true,
-      controller: ['$scope', '$element', '$attrs', '$transclude', function ($scope, $element, $attrs, $transclude) {
-        $scope.attempt = false;
-        $scope.success = false;
-        $scope.uploading = false;
+  this.isUploading = function () {
+    return this.uploads > 0;
+  };
+}]);
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbInNyYy9uZy1zM3VwbG9hZC9zZXJ2aWNlcy9zMy11cGxvYWRlci5qcyJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiOztBQUFBLE9BQU8sQ0FBQyxNQUFNLENBQUMscUJBQXFCLEVBQUUsRUFBRSxDQUFDLENBQ3ZDLE9BQU8sQ0FBQyxZQUFZLEVBQUUsQ0FBQyxPQUFPLEVBQUUsSUFBSSxFQUFFLFNBQVMsRUFBRSxVQUFVLEtBQUssRUFBRSxFQUFFLEVBQUUsT0FBTyxFQUFFO0FBQzdFLE1BQUksQ0FBQyxPQUFPLEdBQUcsQ0FBQyxDQUFDO0FBQ2pCLE1BQUksSUFBSSxHQUFHLElBQUksQ0FBQzs7QUFFaEIsTUFBSSxDQUFDLGdCQUFnQixHQUFHLFVBQVUsR0FBRyxFQUFFO0FBQ3JDLFFBQUksUUFBUSxHQUFHLEVBQUUsQ0FBQyxLQUFLLEVBQUUsQ0FBQztBQUMxQixTQUFLLENBQUMsR0FBRyxDQUFDLEdBQUcsQ0FBQyxDQUNaLE9BQU8sQ0FBQyxVQUFVLFFBQVEsRUFBRSxNQUFNLEVBQUU7QUFDbEMsY0FBUSxDQUFDLE9BQU8sQ0FBQyxRQUFRLENBQUMsQ0FBQztLQUM1QixDQUFDLENBQUMsS0FBSyxDQUFDLFVBQVUsS0FBSyxFQUFFLE1BQU0sRUFBRTtBQUNoQyxjQUFRLENBQUMsTUFBTSxDQUFDLEtBQUssQ0FBQyxDQUFDO0tBQ3hCLENBQUMsQ0FBQzs7QUFFTCxXQUFPLFFBQVEsQ0FBQyxPQUFPLENBQUM7R0FDekIsQ0FBQzs7QUFFRixNQUFJLENBQUMsWUFBWSxHQUFHLFVBQVUsTUFBTSxFQUFFO0FBQ3BDLFFBQUksS0FBSyxHQUFHLGdFQUFnRSxDQUFDO0FBQzdFLFFBQUksTUFBTSxHQUFHLEVBQUUsQ0FBQztBQUNoQixTQUFLLElBQUksQ0FBQyxHQUFHLE1BQU0sRUFBRSxDQUFDLEdBQUcsQ0FBQyxFQUFFLEVBQUUsQ0FBQyxFQUFFLE1BQU0sSUFBSSxLQUFLLENBQUMsSUFBSSxDQUFDLEtBQUssQ0FBQyxJQUFJLENBQUMsTUFBTSxFQUFFLElBQUks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LE1BQU0sQ0FBQyxHQUFHLENBQUMsQ0FBQztBQUNyQixhQUFLLENBQUMsS0FBSyxDQUFDLGdCQUFnQixFQUFFLEdBQUcsQ0FBQyxDQUFDO09BQ3BDLENBQUMsQ0FBQztLQUNKOzs7QUFHRCxTQUFLLENBQUMsU0FBUyxHQUFHLElBQUksQ0FBQztBQUN2QixRQUFJLENBQUMsT0FBTyxFQUFFLENBQUM7QUFDZixPQUFHLENBQUMsSUFBSSxDQUFDLE1BQU0sRUFBRSxHQUFHLEVBQUUsSUFBSSxDQUFDLENBQUM7QUFDNUIsT0FBRyxDQUFDLElBQUksQ0FBQyxFQUFFLENBQUMsQ0FBQzs7QUFFYixXQUFPLFFBQVEsQ0FBQyxPQUFPLENBQUM7R0FDekIsQ0FBQzs7QUFFRixNQUFJLENBQUMsV0FBVyxHQUFHLFlBQVk7QUFDN0IsV0FBTyxJQUFJLENBQUMsT0FBTyxHQUFHLENBQUMsQ0FBQztHQUN6QixDQUFDO0NBQ0gsQ0FBQyxDQUFDLENBQUMiLCJmaWxlIjoic3JjL25nLXMzdXBsb2FkL3NlcnZpY2VzL3MzLXVwbG9hZGVyLmpzIiwic291cmNlc0NvbnRlbnQiOlsiYW5ndWxhci5tb2R1bGUoJ25nUzN1cGxvYWQuc2VydmljZXMnLCBbXSkuXG4gIHNlcnZpY2UoJ1MzVXBsb2FkZXInLCBbJyRodHRwJywgJyRxJywgJyR3aW5kb3cnLCBmdW5jdGlvbiAoJGh0dHAsICRxLCAkd2luZG93KSB7XG4gICAgdGhpcy51cGxvYWRzID0gMDtcbiAgICB2YXIgc2VsZiA9IHRoaXM7XG5cbiAgICB0aGlzLmdldFVwbG9hZE9wdGlvbnMgPSBmdW5jdGlvbiAodXJpKSB7XG4gICAgICB2YXIgZGVmZXJyZWQgPSAkcS5kZWZlcigpO1xuICAgICAgJGh0dHAuZ2V0KHVyaSkuXG4gICAgICAgIHN1Y2Nlc3MoZnVuY3Rpb24gKHJlc3BvbnNlLCBzdGF0dXMpIHtcbiAgICAgICAgICBkZWZlcnJlZC5yZXNvbHZlKHJlc3BvbnNlKTtcbiAgICAgICAgfSkuZXJyb3IoZnVuY3Rpb24gKGVycm9yLCBzdGF0dXMpIHtcbiAgICAgICAgICBkZWZlcnJlZC5yZWplY3QoZXJyb3IpO1xuICAgICAgICB9KTtcblxuICAgICAgcmV0dXJuIGRlZmVycmVkLnByb21pc2U7XG4gICAgfTtcblxuICAgIHRoaXMucmFuZG9tU3RyaW5nID0gZnVuY3Rpb24gKGxlbmd0aCkge1xuICAgICAgdmFyIGNoYXJzID0gJzAxMjM0NTY3ODlhYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3h5ekFCQ0RFRkdISUpLTE1OT1BRUlNUVVZXWFlaJztcbiAgICAgIHZhciByZXN1bHQgPSAnJztcbiAgICAgIGZvciAodmFyIGkgPSBsZW5ndGg7IGkgPiAwOyAtLWkpIHJlc3VsdCArPSBjaGFyc1tNYXRoLnJvdW5kKE1hdGgucmFuZG9tKCkgKiAoY2hhcnMubGVuZ3RoIC0gMSkpXTtcblxuICAgICAgcmV0dXJuIHJlc3VsdDtcbiAgICB9O1xuXG5cbiAgICB0aGlzLnVwbG9hZCA9IGZ1bmN0aW9uIChzY29wZSwgdXJpLCBrZXksIGFjbCwgdHlwZSwgYWNjZXNzS2V5LCBwb2xpY3ksIHNpZ25hdHVyZSwgZmlsZSkge1xuICAgICAgdmFyIGRlZmVycmVkID0gJHEuZGVmZXIoKTtcbiAgICAgIHNjb3BlLmF0dGVtcHQgPSB0cnVlO1xuXG4gICAgICB2YXIgZmQgPSBuZXcgRm9ybURhdGEoKTtcbiAgICAgIGZkLmFwcGVuZCgna2V5Jywga2V5KTtcbiAgICAgIGZkLmFwcGVuZCgnYWNsJywgYWNsKTtcbiAgICAgIGZkLmFwcGVuZCgnQ29udGVudC1UeXBlJywgZmlsZS50eXBlKTtcbiAgICAgIGZkLmFwcGVuZCgnQVdTQWNjZXNzS2V5SWQnLCBhY2Nlc3NLZXkpO1xuICAgICAgZmQuYXBwZW5kKCdwb2xpY3knLCBwb2xpY3kpO1xuICAgICAgZmQuYXBwZW5kKCdzaWduYXR1cmUnLCBzaWduYXR1cmUpO1xuICAgICAgZmQuYXBwZW5kKFwiZmlsZVwiLCBmaWxlKTtcblxuICAgICAgdmFyIHhociA9IG5ldyBYTUxIdHRwUmVxdWVzdCgpO1xuICAgICAgeGhyLnVwbG9hZC5hZGRFdmVudExpc3RlbmVyKFwicHJvZ3Jlc3NcIiwgdXBsb2FkUHJvZ3Jlc3MsIGZhbHNlKTtcbiAgICAgIHhoci5hZGRFdmVudExpc3RlbmVyKFwibG9hZFwiLCB1cGxvYWRDb21wbGV0ZSwgZmFsc2UpO1xuICAgICAgeGhyLmFkZEV2ZW50TGlzdGVuZXIoXCJlcnJvclwiLCB1cGxvYWRGYWlsZWQsIGZhbHNlKTtcbiAgICAgIHhoci5hZGRFdmVudExpc3RlbmVyKFwiYWJvcnRcIiwgdXBsb2FkQ2FuY2VsZWQsIGZhbHNlKTtcbiAgICAgIHNjb3BlLiRlbWl0KCdzM3VwbG9hZDpzdGFydCcsIHhocik7XG5cbiAgICAgIC8vIERlZmluZSBldmVudCBoYW5kbGVyc1xuICAgICAgZnVuY3Rpb24gdXBsb2FkUHJvZ3Jlc3MoZSkge1xuICAgICAgICBzY29wZS4kYXBwbHkoZnVuY3Rpb24gKCkge1xuICAgICAgICAgIGlmIChlLmxlbmd0aENvbXB1dGFibGUpIHtcbiAgICAgICAgICAgIHNjb3BlLnByb2dyZXNzID0gTWF0aC5yb3VuZChlLmxvYWRlZCAqIDEwMCAvIGUudG90YWwpO1xuICAgICAgICAgIH0gZWxzZSB7XG4gICAgICAgICAgICBzY29wZS5wcm9ncmVzcyA9ICd1bmFibGUgdG8gY29tcHV0ZSc7XG4gICAgICAgICAgfVxuICAgICAgICAgIHZhciBtc2cgPSB7dHlwZTogJ3Byb2dyZXNzJywgdmFsdWU6IHNjb3BlLnByb2dyZXNzfTtcbiAgICAgICAgICBzY29wZS4kZW1pdCgnczN1cGxvYWQ6cHJvZ3Jlc3MnLCBtc2cpO1xuICAgICAgICAgIGlmICh0eXBlb2YgZGVmZXJyZWQubm90aWZ5ID09PSAnZnVuY3Rpb24nKSB7XG4gICAgICAgICAgICBkZWZlcnJlZC5ub3RpZnkobXNnKTtcbiAgICAgICAgICB9XG5cbiAgICAgICAgfSk7XG4gICAgICB9XG4gICAgICBmdW5jdGlvbiB1cGxvYWRDb21wbGV0ZShlKSB7XG4gICAgICAgIHZhciB4aHIgPSBlLnNyY0VsZW1lbnQgfHwgZS50YXJnZXQ7XG4gICAgICAgIHNjb3BlLiRhcHBseShmdW5jdGlvbiAoKSB7XG4gICAgICAgICAgc2VsZi51cGxvYWRzLS07XG4gICAgICAgICAgc2NvcGUudXBsb2FkaW5nID0gZmFsc2U7XG4gICAgICAgICAgaWYgKHhoci5zdGF0dXMgPT09IDIwNCkgeyAvLyBzdWNjZXNzZnVsIHVwbG9hZFxuICAgICAgICAgICAgc2NvcGUuc3VjY2VzcyA9IHRydWU7XG4gICAgICAgICAgICBkZWZlcnJlZC5yZXNvbHZlKHhocik7XG4gICAgICAgICAgICBzY29wZS4kZW1pdCgnczN1cGxvYWQ6c3VjY2VzcycsIHhociwge3BhdGg6IHVyaSArIGtleX0pO1xuICAgICAgICAgIH0gZWxzZSB7XG4gICAgICAgICAgICBzY29wZS5zdWNjZXNzID0gZmFsc2U7XG4gICAgICAgICAgICBkZWZlcnJlZC5yZWplY3QoeGhyKTtcbiAgICAgICAgICAgIHNjb3BlLiRlbWl0KCdzM3VwbG9hZDplcnJvcicsIHhocik7XG4gICAgICAgICAgfVxuICAgICAgICB9KTtcbiAgICAgIH1cbiAgICAgIGZ1bmN0aW9uIHVwbG9hZEZhaWxlZChlKSB7XG4gICAgICAgIHZhciB4aHIgPSBlLnNyY0VsZW1lbnQgfHwgZS50YXJnZXQ7XG4gICAgICAgIHNjb3BlLiRhcHBseShmdW5jdGlvbiAoKSB7XG4gICAgICAgICAgc2VsZi51cGxvYWRzLS07XG4gICAgICAgICAgc2NvcGUudXBsb2FkaW5nID0gZmFsc2U7XG4gICAgICAgICAgc2NvcGUuc3VjY2VzcyA9IGZhbHNlO1xuICAgICAgICAgIGRlZmVycmVkLnJlamVjdCh4aHIpO1xuICAgICAgICAgIHNjb3BlLiRlbWl0KCdzM3VwbG9hZDplcnJvcicsIHhocik7XG4gICAgICAgIH0pO1xuICAgICAgfVxuICAgICAgZnVuY3Rpb24gdXBsb2FkQ2FuY2VsZWQoZSkge1xuICAgICAgICB2YXIgeGhyID0gZS5zcmNFbGVtZW50IHx8IGUudGFyZ2V0O1xuICAgICAgICBzY29wZS4kYXBwbHkoZnVuY3Rpb24gKCkge1xuICAgICAgICAgIHNlbGYudXBsb2Fkcy0tO1xuICAgICAgICAgIHNjb3BlLnVwbG9hZGluZyA9IGZhbHNlO1xuICAgICAgICAgIHNjb3BlLnN1Y2Nlc3MgPSBmYWxzZTtcbiAgICAgICAgICBkZWZlcnJlZC5yZWplY3QoeGhyKTtcbiAgICAgICAgICBzY29wZS4kZW1pdCgnczN1cGxvYWQ6YWJvcnQnLCB4aHIpO1xuICAgICAgICB9KTtcbiAgICAgIH1cblxuICAgICAgLy8gU2VuZCB0aGUgZmlsZVxuICAgICAgc2NvcGUudXBsb2FkaW5nID0gdHJ1ZTtcbiAgICAgIHRoaXMudXBsb2FkcysrO1xuICAgICAgeGhyLm9wZW4oJ1BPU1QnLCB1cmksIHRydWUpO1xuICAgICAgeGhyLnNlbmQoZmQpO1xuXG4gICAgICByZXR1cm4gZGVmZXJyZWQucHJvbWlzZTtcbiAgICB9O1xuXG4gICAgdGhpcy5pc1VwbG9hZGluZyA9IGZ1bmN0aW9uICgpIHtcbiAgICAgIHJldHVybiB0aGlzLnVwbG9hZHMgPiAwO1xuICAgIH07XG4gIH1dKTtcbiJdfQ==;
+'use strict';
 
-        $scope.barClass = function () {
-          return {
-            "bar-success": $scope.attempt && !$scope.uploading && $scope.success
-          };
-        };
-      }],
-      compile: function (element, attr, linker) {
+angular.module('ngS3upload.directives', []).directive('s3Upload', ['$parse', 'S3Uploader', 'ngS3Config', function ($parse, S3Uploader, ngS3Config) {
+  return {
+    restrict: 'AC',
+    require: '?ngModel',
+    replace: true,
+    transclude: false,
+    scope: true,
+    controller: ['$scope', '$element', '$attrs', '$transclude', function ($scope, $element, $attrs, $transclude) {
+      $scope.attempt = false;
+      $scope.success = false;
+      $scope.uploading = false;
+
+      $scope.barClass = function () {
         return {
-          pre: function ($scope, $element, $attr) {
-            if (angular.isUndefined($attr.bucket)) {
-              throw Error('bucket is a mandatory attribute');
-            }
-          },
-          post: function (scope, element, attrs, ngModel) {
-            // Build the opts array
-            var opts = angular.extend({}, scope.$eval(attrs.s3UploadOptions || attrs.options));
-            opts = angular.extend({
-              submitOnChange: true,
-              getOptionsUri: '/getS3Options',
-              acl: 'public-read',
-              uploadingKey: 'uploading',
-              folder: '',
-              enableValidation: true,
-              targetFilename: null
-            }, opts);
-            var bucket = scope.$eval(attrs.bucket);
-
-            // Bind the button click event
-            var button = angular.element(element.children()[0]),
-              file = angular.element(element.find("input")[0]);
-            button.bind('click', function (e) {
-              file[0].click();
-            });
-
-            // Update the scope with the view value
-            ngModel.$render = function () {
-              scope.filename = ngModel.$viewValue;
-            };
-
-            var uploadFile = function () {
-              var selectedFile = file[0].files[0];
-              var filename = selectedFile.name;
-              var ext = filename.split('.').pop();
-
-              S3Uploader.getUploadOptions(opts.getOptionsUri).then(function (s3Options) {
-                if (opts.enableValidation) {
-                  ngModel.$setValidity('uploading', false);
-                }
-
-                var s3Uri = 'https://' + bucket + '.s3.amazonaws.com/';
-                var key = opts.targetFilename ? scope.$eval(opts.targetFilename) : opts.folder + (new Date()).getTime() + '-' + S3Uploader.randomString(16) + "." + ext;
-                S3Uploader.upload(scope,
-                    s3Uri,
-                    key,
-                    opts.acl,
-                    selectedFile.type,
-                    s3Options.key,
-                    s3Options.policy,
-                    s3Options.signature,
-                    selectedFile
-                  ).then(function () {
-                    ngModel.$setViewValue(s3Uri + key);
-                    scope.filename = ngModel.$viewValue;
-
-                    if (opts.enableValidation) {
-                      ngModel.$setValidity('uploading', true);
-                      ngModel.$setValidity('succeeded', true);
-                    }
-                  }, function () {
-                    scope.filename = ngModel.$viewValue;
-
-                    if (opts.enableValidation) {
-                      ngModel.$setValidity('uploading', true);
-                      ngModel.$setValidity('succeeded', false);
-                    }
-                  });
-
-              }, function (error) {
-                throw Error("Can't receive the needed options for S3 " + error);
-              });
-
-            };
-
-            element.bind('change', function (nVal) {
-              if (opts.submitOnChange) {
-                scope.$apply(function () {
-                  uploadFile();
-                });
-              }
-            });
-
-            if (angular.isDefined(attrs.doUpload)) {
-              scope.$watch(attrs.doUpload, function(value) {
-                if (value) uploadFile();
-              });
-            }
-          }
+          'bar-success': $scope.attempt && !$scope.uploading && $scope.success
         };
-      },
-      templateUrl: function(elm, attrs) {
-        var theme = attrs.theme || ngS3Config.theme;
-        return 'theme/' + theme + '.html';
-      }
-    };
-  }]);
+      };
+    }],
+    compile: function compile(element, attr, linker) {
+      return {
+        pre: function pre($scope, $element, $attr) {
+          if (angular.isUndefined($attr.bucket)) {
+            throw Error('bucket is a mandatory attribute');
+          }
+        },
+        post: function post(scope, element, attrs, ngModel) {
+          // Build the opts array
+          var opts = angular.extend({}, scope.$eval(attrs.s3UploadOptions || attrs.options));
+          opts = angular.extend({
+            submitOnChange: true,
+            getOptionsUri: '/getS3Options',
+            getManualOptions: null,
+            mimeTypes: [],
+            acl: 'public-read',
+            uploadingKey: 'uploading',
+            folder: '',
+            buttonText: 'Select File',
+            dropText: 'Drop File Here',
+            errorText: 'Incorrect File Type',
+            enableValidation: true,
+            targetFilename: null
+          }, opts);
+          var bucket = scope.$eval(attrs.bucket);
+          scope.buttonText = opts.buttonText;
+          scope.dropText = opts.dropText;
+
+          // Bind the button click event
+          var button = angular.element(document.getElementById('s3-button-target')),
+              file = angular.element(element.find('input'))[0];
+          button.bind('click', function (e) {
+            file.click();
+          });
+
+          function Init() {
+
+            var fileselect = document.getElementById('s3-file-target'),
+                filedrag = document.getElementById('s3-drop-target');
+
+            // file drop
+            filedrag.addEventListener('dragover', FileDragHover, false);
+            filedrag.addEventListener('dragleave', FileDragHover, false);
+            filedrag.addEventListener('drop', FileSelectHandler, false);
+            filedrag.style.display = 'block';
+          }
+
+          function FileDragHover(e) {
+            e.stopPropagation();
+            e.preventDefault();
+            e.target.className = e.type == 'dragover' ? 'hover' : '';
+          }
+
+          if (window.File && window.FileList && window.FileReader) {
+            Init();
+          }
+
+          // file selection
+          function FileSelectHandler(e) {
+
+            // cancel event and hover styling
+            FileDragHover(e);
+
+            // fetch FileList object
+            uploadFile((e.target.files || e.dataTransfer.files)[0]);
+          }
+
+          // Update the scope with the view value
+          ngModel.$render = function () {
+            scope.filename = ngModel.$viewValue;
+          };
+
+          function uploadFile(selectedFile) {
+            var filename, mimeTypeMatch, ext;
+            if (arguments.length === 0) {
+              selectedFile = file.files[0];
+            }
+            filename = selectedFile.name;
+            mimeTypeMatch = false;
+            if (opts.mimeTypes.length > 0) {
+              mimeTypeMatch = opts.mimeTypes.some(function (element) {
+                if (selectedFile.type.match(element)) {
+                  return true;
+                }
+                return false;
+              });
+            } else {
+              mimeTypeMatch = true;
+            }
+
+            if (!mimeTypeMatch) {
+              if (typeof sweetAlert === 'function') {
+                return sweetAlert('File Type Error', opts.errorText, 'error');
+              }
+              return alert('File Type Error: ' + opts.errorText);
+            }
+            ext = filename.split('.').pop();
+
+            if (angular.isObject(opts.getManualOptions)) {
+              _upload(opts.getManualOptions);
+            } else {
+              S3Uploader.getUploadOptions(opts.getOptionsUri).then(function (s3Options) {
+                _upload(s3Options);
+              }, function (error) {
+                throw Error('Can\'t receive the needed options for S3 ' + error);
+              });
+            }
+
+            function _upload(s3Options) {
+              if (opts.enableValidation) {
+                ngModel.$setValidity('uploading', false);
+              }
+
+              var s3Uri = 'https://' + bucket + '.s3.amazonaws.com/';
+              var key = opts.folder + new Date().getTime() + '-' + S3Uploader.randomString(16) + '.' + ext;
+              S3Uploader.upload(scope, s3Uri, key, opts.acl, selectedFile.type, s3Options.key, s3Options.policy, s3Options.signature, selectedFile).then(function () {
+                ngModel.$setViewValue(s3Uri + key);
+                scope.filename = ngModel.$viewValue;
+
+                if (opts.enableValidation) {
+                  ngModel.$setValidity('uploading', true);
+                  ngModel.$setValidity('succeeded', true);
+                }
+              }, function () {
+                scope.filename = ngModel.$viewValue;
+
+                if (opts.enableValidation) {
+                  ngModel.$setValidity('uploading', true);
+                  ngModel.$setValidity('succeeded', false);
+                }
+              });
+            }
+          };
+
+          element.bind('change', function (nVal) {
+            if (opts.submitOnChange) {
+              scope.$apply(function () {
+                uploadFile();
+              });
+            }
+          });
+
+          if (angular.isDefined(attrs.doUpload)) {
+            scope.$watch(attrs.doUpload, function (value) {
+              if (value) uploadFile();
+            });
+          }
+        }
+      };
+    },
+    templateUrl: 'ng-s3upload.html'
+  };
+}]);
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbInNyYy9uZy1zM3VwbG9hZC9kaXJlY3RpdmVzL3MzLXVwbG9hZC5qcyJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiOztBQUNBLE9BQU8sQ0FBQyxNQUFNLENBQUMsdUJBQXVCLEVBQUUsRUFBRSxDQUFDLENBQ3pDLFNBQVMsQ0FBQyxVQUFVLEVBQUUsQ0FBQyxRQUFRLEVBQUUsWUFBWSxFQUFFLFlBQVksRUFBRSxVQUFVLE1BQU0sRUFBRSxVQUFVLEVBQUUsVUFBVSxFQUFFO0FBQ3JHLFNBQU87QUFDTCxZQUFRLEVBQUUsSUFBSTtBQUNkLFdBQU8sRUFBRSxVQUFVO0FBQ25CLFdBQU8sRUFBRSxJQUFJO0FBQ2IsY0FBVSxFQUFFLEtBQUs7QUFDakIsU0FBSyxFQUFFLElBQUk7QUFDWCxjQUFVLEVBQUUsQ0FBQyxRQUFRLEVBQUUsVUFBVSxFQUFFLFFBQVEsRUFBRSxhQUFhLEVBQUUsVUFBVSxNQUFNLEVBQUUsUUFBUSxFQUFFLE1BQU0sRUFBRSxXQUFXLEVBQUU7QUFDM0csWUFBTSxDQUFDLE9BQU8sR0FBRyxLQUFLLENBQUM7QUFDdkIsWUFBTSxDQUFDLE9BQU8sR0FBRyxLQUFLLENBQUM7QUFDdkIsWUFBTSxDQUFDLFNBQVMsR0FBRyxLQUFLLENBQUM7O0FBRXpCLFlBQU0sQ0FBQyxRQUFRLEdBQUcsWUFBWTtBQUM1QixlQUFPO0FBQ0wsdUJBQWEsRUFBRSxNQUFNLENBQUMsT0FBTyxJQUFJLENBQUMsTUFBTSxDQUFDLFNBQVMsSUFBSSxNQUFNLENBQUMsT0FBTztTQUNyRSxDQUFDO09BQ0gsQ0FBQztLQUNILENBQUM7QUFDRixXQUFPLEVBQUUsaUJBQVUsT0FBTyxFQUFFLElBQUksRUFBRSxNQUFNLEVBQUU7QUFDeEMsYUFBTztBQUNMLFdBQUcsRUFBRSxhQUFVLE1BQU0sRUFBRSxRQUFRLEVBQUUsS0FBSyxFQUFFO0FBQ3RDLGNBQUksT0FBTyxDQUFDLFdBQVcsQ0FBQyxLQUFLLENBQUMsTUFBTSxDQUFDLEVBQUU7QUFDckMsa0JBQU0sS0FBSyxDQUFD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ZW50IjpbIlxuYW5ndWxhci5tb2R1bGUoJ25nUzN1cGxvYWQuZGlyZWN0aXZlcycsIFtdKS5cbiAgZGlyZWN0aXZlKCdzM1VwbG9hZCcsIFsnJHBhcnNlJywgJ1MzVXBsb2FkZXInLCAnbmdTM0NvbmZpZycsIGZ1bmN0aW9uICgkcGFyc2UsIFMzVXBsb2FkZXIsIG5nUzNDb25maWcpIHtcbiAgICByZXR1cm4ge1xuICAgICAgcmVzdHJpY3Q6ICdBQycsXG4gICAgICByZXF1aXJlOiAnP25nTW9kZWwnLFxuICAgICAgcmVwbGFjZTogdHJ1ZSxcbiAgICAgIHRyYW5zY2x1ZGU6IGZhbHNlLFxuICAgICAgc2NvcGU6IHRydWUsXG4gICAgICBjb250cm9sbGVyOiBbJyRzY29wZScsICckZWxlbWVudCcsICckYXR0cnMnLCAnJHRyYW5zY2x1ZGUnLCBmdW5jdGlvbiAoJHNjb3BlLCAkZWxlbWVudCwgJGF0dHJzLCAkdHJhbnNjbHVkZSkge1xuICAgICAgICAkc2NvcGUuYXR0ZW1wdCA9IGZhbHNlO1xuICAgICAgICAkc2NvcGUuc3VjY2VzcyA9IGZhbHNlO1xuICAgICAgICAkc2NvcGUudXBsb2FkaW5nID0gZmFsc2U7XG5cbiAgICAgICAgJHNjb3BlLmJhckNsYXNzID0gZnVuY3Rpb24gKCkge1xuICAgICAgICAgIHJldHVybiB7XG4gICAgICAgICAgICBcImJhci1zdWNjZXNzXCI6ICRzY29wZS5hdHRlbXB0ICYmICEkc2NvcGUudXBsb2FkaW5nICYmICRzY29wZS5zdWNjZXNzXG4gICAgICAgICAgfTtcbiAgICAgICAgfTtcbiAgICAgIH1dLFxuICAgICAgY29tcGlsZTogZnVuY3Rpb24gKGVsZW1lbnQsIGF0dHIsIGxpbmtlcikge1xuICAgICAgICByZXR1cm4ge1xuICAgICAgICAgIHByZTogZnVuY3Rpb24gKCRzY29wZSwgJGVsZW1lbnQsICRhdHRyKSB7XG4gICAgICAgICAgICBpZiAoYW5ndWxhci5pc1VuZGVmaW5lZCgkYXR0ci5idWNrZXQpKSB7XG4gICAgICAgICAgICAgIHRocm93IEVycm9yKCdidWNrZXQgaXMgYSBtYW5kYXRvcnkgYXR0cmlidXRlJyk7XG4gICAgICAgICAgICB9XG4gICAgICAgICAgfSxcbiAgICAgICAgICBwb3N0OiBmdW5jdGlvbiAoc2NvcGUsIGVsZW1lbnQsIGF0dHJzLCBuZ01vZGVsKSB7XG4gICAgICAgICAgICAvLyBCdWlsZCB0aGUgb3B0cyBhcnJheVxuICAgICAgICAgICAgdmFyIG9wdHMgPSBhbmd1bGFyLmV4dGVuZCh7fSwgc2NvcGUuJGV2YWwoYXR0cnMuczNVcGxvYWRPcHRpb25zIHx8IGF0dHJzLm9wdGlvbnMpKTtcbiAgICAgICAgICAgIG9wdHMgPSBhbmd1bGFyLmV4dGVuZCh7XG4gICAgICAgICAgICAgIHN1Ym1pdE9uQ2hhbmdlOiB0cnVlLFxuICAgICAgICAgICAgICBnZXRPcHRpb25zVXJpOiAnL2dldFMzT3B0aW9ucycsXG4gICAgICAgICAgICAgIGdldE1hbnVhbE9wdGlvbnM6IG51bGwsXG4gICAgICAgICAgICAgIG1pbWVUeXBlczogW10sXG4gICAgICAgICAgICAgIGFjbDogJ3B1YmxpYy1yZWFkJyxcbiAgICAgICAgICAgICAgdXBsb2FkaW5nS2V5OiAndXBsb2FkaW5nJyxcbiAgICAgICAgICAgICAgZm9sZGVyOiAnJyxcbiAgICAgICAgICAgICAgYnV0dG9uVGV4dDogJ1NlbGVjdCBGaWxlJyxcbiAgICAgICAgICAgICAgZHJvcFRleHQ6ICdEcm9wIEZpbGUgSGVyZScsXG4gICAgICAgICAgICAgIGVycm9yVGV4dDogJ0luY29ycmVjdCBGaWxlIFR5cGUnLFxuICAgICAgICAgICAgICBlbmFibGVWYWxpZGF0aW9uOiB0cnVlLFxuICAgICAgICAgICAgICB0YXJnZXRGaWxlbmFtZTogbnVsbFxuICAgICAgICAgICAgfSwgb3B0cyk7XG4gICAgICAgICAgICB2YXIgYnVja2V0ID0gc2NvcGUuJGV2YWwoYXR0cnMuYnVja2V0KTtcbiAgICAgICAgICAgIHNjb3BlLmJ1dHRvblRleHQgPSBvcHRzLmJ1dHRvblRleHQ7XG4gICAgICAgICAgICBzY29wZS5kcm9wVGV4dCA9IG9wdHMuZHJvcFRleHQ7XG5cbiAgICAgICAgICAgIC8vIEJpbmQgdGhlIGJ1dHRvbiBjbGljayBldmVudFxuICAgICAgICAgICAgdmFyIGJ1dHRvbiA9IGFuZ3VsYXIuZWxlbWVudChkb2N1bWVudC5nZXRFbGVtZW50QnlJZCgnczMtYnV0dG9uLXRhcmdldCcpKSxcbiAgICAgICAgICAgICAgZmlsZSA9IGFuZ3VsYXIuZWxlbWVudChlbGVtZW50LmZpbmQoXCJpbnB1dFwiKSlbMF07XG4gICAgICAgICAgICBidXR0b24uYmluZCgnY2xpY2snLCBmdW5jdGlvbiAoZSkge1xuICAgICAgICAgICAgICBmaWxlLmNsaWNrKCk7XG4gICAgICAgICAgICB9KTtcblxuICAgICAgICAgICAgZnVuY3Rpb24gSW5pdCgpIHtcblxuICAgICAgICAgICAgICAgIHZhciBmaWxlc2VsZWN0ID0gZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoXCJzMy1maWxlLXRhcmdldFwiKSxcbiAgICAgICAgICAgICAgICAgIGZpbGVkcmFnID0gZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoXCJzMy1kcm9wLXRhcmdldFwiKTtcblxuICAgICAgICAgICAgICAgIC8vIGZpbGUgZHJvcFxuICAgICAgICAgICAgICAgIGZpbGVkcmFnLmFkZEV2ZW50TGlzdGVuZXIoXCJkcmFnb3ZlclwiLCBGaWxlRHJhZ0hvdmVyLCBmYWxzZSk7XG4gICAgICAgICAgICAgICAgZmlsZWRyYWcuYWRkRXZlbnRMaXN0ZW5lcihcImRyYWdsZWF2ZVwiLCBGaWxlRHJhZ0hvdmVyLCBmYWxzZSk7XG4gICAgICAgICAgICAgICAgZmlsZWRyYWcuYWRkRXZlbnRMaXN0ZW5lcihcImRyb3BcIiwgRmlsZVNlbGVjdEhhbmRsZXIsIGZhbHNlKTtcbiAgICAgICAgICAgICAgICBmaWxlZHJhZy5zdHlsZS5kaXNwbGF5ID0gXCJibG9ja1wiO1xuXG5cbiAgICAgICAgICAgIH1cblxuICAgICAgICAgICAgZnVuY3Rpb24gRmlsZURyYWdIb3ZlcihlKSB7XG4gICAgICAgICAgICAgIGUuc3RvcFByb3BhZ2F0aW9uKCk7XG4gICAgICAgICAgICAgIGUucHJldmVudERlZmF1bHQoKTtcbiAgICAgICAgICAgICAgZS50YXJnZXQuY2xhc3NOYW1lID0gKGUudHlwZSA9PSBcImRyYWdvdmVyXCIgPyBcImhvdmVyXCIgOiBcIlwiKTtcbiAgICAgICAgICAgIH1cblxuICAgICAgICAgICAgaWYgKHdpbmRvdy5GaWxlICYmIHdpbmRvdy5GaWxlTGlzdCAmJiB3aW5kb3cuRmlsZVJlYWRlcikge1xuICAgICAgICAgICAgICBJbml0KCk7XG4gICAgICAgICAgICB9XG5cbiAgICAgICAgICAgIC8vIGZpbGUgc2VsZWN0aW9uXG4gICAgICAgICAgICBmdW5jdGlvbiBGaWxlU2VsZWN0SGFuZGxlcihlKSB7XG5cbiAgICAgICAgICAgICAgLy8gY2FuY2VsIGV2ZW50IGFuZCBob3ZlciBzdHlsaW5nXG4gICAgICAgICAgICAgIEZpbGVEcmFnSG92ZXIoZSk7XG5cbiAgICAgICAgICAgICAgLy8gZmV0Y2ggRmlsZUxpc3Qgb2JqZWN0XG4gICAgICAgICAgICAgIHVwbG9hZEZpbGUoKGUudGFyZ2V0LmZpbGVzIHx8IGUuZGF0YVRyYW5zZmVyLmZpbGVzKVswXSk7XG4gICAgICAgICAgICB9XG5cblxuICAgICAgICAgICAgLy8gVXBkYXRlIHRoZSBzY29wZSB3aXRoIHRoZSB2aWV3IHZhbHVlXG4gICAgICAgICAgICBuZ01vZGVsLiRyZW5kZXIgPSBmdW5jdGlvbiAoKSB7XG4gICAgICAgICAgICAgIHNjb3BlLmZpbGVuYW1lID0gbmdNb2RlbC4kdmlld1ZhbHVlO1xuICAgICAgICAgICAgfTtcblxuICAgICAgICAgICAgZnVuY3Rpb24gdXBsb2FkRmlsZShzZWxlY3RlZEZpbGUpIHtcbiAgICAgICAgICAgICAgdmFyIGZpbGVuYW1lLCBtaW1lVHlwZU1hdGNoLCBleHQ7XG4gICAgICAgICAgICAgIGlmKGFyZ3VtZW50cy5sZW5ndGggPT09IDApe1xuICAgICAgICAgICAgICAgIHNlbGVjdGVkRmlsZSA9IGZpbGUuZmlsZXNbMF07XG4gICAgICAgICAgICAgIH1cbiAgICAgICAgICAgICAgZmlsZW5hbWUgPSBzZWxlY3RlZEZpbGUubmFtZTtcbiAgICAgICAgICAgICAgbWltZVR5cGVNYXRjaCA9IGZhbHNlO1xuICAgICAgICAgICAgICBpZihvcHRzLm1pbWVUeXBlcy5sZW5ndGggPiAwKXtcbiAgICAgICAgICAgICAgICBtaW1lVHlwZU1hdGNoID0gb3B0cy5taW1lVHlwZXMuc29tZShmdW5jdGlvbihlbGVtZW50KXtcbiAgICAgICAgICAgICAgICAgIGlmKHNlbGVjdGVkRmlsZS50eXBlLm1hdGNoKGVsZW1lbnQpKXtcbiAgICAgICAgICAgICAgICAgICAgcmV0dXJuIHRydWU7XG4gICAgICAgICAgICAgICAgICB9XG4gICAgICAgICAgICAgICAgICByZXR1cm4gZmFsc2U7XG4gICAgICAgICAgICAgICAgfSk7XG4gICAgICAgICAgICAgIH0gZWxzZSB7XG4gICAgICAgICAgICAgICAgbWltZVR5cGVNYXRjaCA9IHRydWU7XG4gICAgICAgICAgICAgIH1cblxuICAgICAgICAgICAgICBpZighbWltZVR5cGVNYXRjaCl7XG4gICAgICAgICAgICAgICAgaWYodHlwZW9mKHN3ZWV0QWxlcnQpID09PSAnZnVuY3Rpb24nKXtcbiAgICAgICAgICAgICAgICAgIHJldHVybiBzd2VldEFsZXJ0KCdGaWxlIFR5cGUgRXJyb3InLCBvcHRzLmVycm9yVGV4dCwgICdlcnJvcicpO1xuICAgICAgICAgICAgICAgIH1cbiAgICAgICAgICAgICAgICByZXR1cm4gYWxlcnQoJ0ZpbGUgVHlwZSBFcnJvcjogJyArIG9wdHMuZXJyb3JUZXh0KTtcbiAgICAgICAgICAgICAgfVxuICAgICAgICAgICAgICBleHQgPSBmaWxlbmFtZS5zcGxpdCgnLicpLnBvcCgpO1xuXG4gICAgICAgICAgICAgIGlmKGFuZ3VsYXIuaXNPYmplY3Qob3B0cy5nZXRNYW51YWxPcHRpb25zKSkge1xuICAgICAgICAgICAgICAgIF91cGxvYWQob3B0cy5nZXRNYW51YWxPcHRpb25zKTtcbiAgICAgICAgICAgICAgfSBlbHNlIHtcbiAgICAgICAgICAgICAgICBTM1VwbG9hZGVyLmdldFVwbG9hZE9wdGlvbnMob3B0cy5nZXRPcHRpb25zVXJpKS50aGVuKGZ1bmN0aW9uIChzM09wdGlvbnMpIHtcbiAgICAgICAgICAgICAgICAgIF91cGxvYWQoczNPcHRpb25zKTtcbiAgICAgICAgICAgICAgICB9LCBmdW5jdGlvbiAoZXJyb3IpIHtcbiAgICAgICAgICAgICAgICAgIHRocm93IEVycm9yKFwiQ2FuJ3QgcmVjZWl2ZSB0aGUgbmVlZGVkIG9wdGlvbnMgZm9yIFMzIFwiICsgZXJyb3IpO1xuICAgICAgICAgICAgICAgIH0pO1xuICAgICAgICAgICAgICB9XG5cbiAgICAgICAgICAgICAgZnVuY3Rpb24gX3VwbG9hZChzM09wdGlvbnMpe1xuICAgICAgICAgICAgICAgIGlmIChvcHRzLmVuYWJsZVZhbGlkYXRpb24pIHtcbiAgICAgICAgICAgICAgICAgIG5nTW9kZWwuJHNldFZhbGlkaXR5KCd1cGxvYWRpbmcnLCBmYWxzZSk7XG4gICAgICAgICAgICAgICAgfVxuXG4gICAgICAgICAgICAgICAgdmFyIHMzVXJpID0gJ2h0dHBzOi8vJyArIGJ1Y2tldCArICcuczMuYW1hem9uYXdzLmNvbS8nO1xuICAgICAgICAgICAgICAgIHZhciBrZXkgPSBvcHRzLmZvbGRlciArIChuZXcgRGF0ZSgpKS5nZXRUaW1lKCkgKyAnLScgKyBTM1VwbG9hZGVyLnJhbmRvbVN0cmluZygxNikgKyAnLicgKyBleHQ7XG4gICAgICAgICAgICAgICAgUzNVcGxvYWRlci51cGxvYWQoc2NvcGUsXG4gICAgICAgICAgICAgICAgICAgIHMzVXJpLFxuICAgICAgICAgICAgICAgICAgICBrZXksXG4gICAgICAgICAgICAgICAgICAgIG9wdHMuYWNsLFxuICAgICAgICAgICAgICAgICAgICBzZWxlY3RlZEZpbGUudHlwZSxcbiAgICAgICAgICAgICAgICAgICAgczNPcHRpb25zLmtleSxcbiAgICAgICAgICAgICAgICAgICAgczNPcHRpb25zLnBvbGljeSxcbiAgICAgICAgICAgICAgICAgICAgczNPcHRpb25zLnNpZ25hdHVyZSxcbiAgICAgICAgICAgICAgICAgICAgc2VsZWN0ZWRGaWxlXG4gICAgICAgICAgICAgICAgICApLnRoZW4oZnVuY3Rpb24gKCkge1xuICAgICAgICAgICAgICAgICAgICBuZ01vZGVsLiRzZXRWaWV3VmFsdWUoczNVcmkgKyBrZXkpO1xuICAgICAgICAgICAgICAgICAgICBzY29wZS5maWxlbmFtZSA9IG5nTW9kZWwuJHZpZXdWYWx1ZTtcblxuICAgICAgICAgICAgICAgICAgICBpZiAob3B0cy5lbmFibGVWYWxpZGF0aW9uKSB7XG4gICAgICAgICAgICAgICAgICAgICAgbmdNb2RlbC4kc2V0VmFsaWRpdHkoJ3VwbG9hZGluZycsIHRydWUpO1xuICAgICAgICAgICAgICAgICAgICAgIG5nTW9kZWwuJHNldFZhbGlkaXR5KCdzdWNjZWVkZWQnLCB0cnVlKTtcbiAgICAgICAgICAgICAgICAgICAgfVxuICAgICAgICAgICAgICAgICAgfSwgZnVuY3Rpb24gKCkge1xuICAgICAgICAgICAgICAgICAgICBzY29wZS5maWxlbmFtZSA9IG5nTW9kZWwuJHZpZXdWYWx1ZTtcblxuICAgICAgICAgICAgICAgICAgICBpZiAob3B0cy5lbmFibGVWYWxpZGF0aW9uKSB7XG4gICAgICAgICAgICAgICAgICAgICAgbmdNb2RlbC4kc2V0VmFsaWRpdHkoJ3VwbG9hZGluZycsIHRydWUpO1xuICAgICAgICAgICAgICAgICAgICAgIG5nTW9kZWwuJHNldFZhbGlkaXR5KCdzdWNjZWVkZWQnLCBmYWxzZSk7XG4gICAgICAgICAgICAgICAgICAgIH1cbiAgICAgICAgICAgICAgICAgIH0pO1xuICAgICAgICAgICAgICB9XG4gICAgICAgICAgICB9O1xuXG4gICAgICAgICAgICBlbGVtZW50LmJpbmQoJ2NoYW5nZScsIGZ1bmN0aW9uIChuVmFsKSB7XG4gICAgICAgICAgICAgIGlmIChvcHRzLnN1Ym1pdE9uQ2hhbmdlKSB7XG4gICAgICAgICAgICAgICAgc2NvcGUuJGFwcGx5KGZ1bmN0aW9uICgpIHtcbiAgICAgICAgICAgICAgICAgIHVwbG9hZEZpbGUoKTtcbiAgICAgICAgICAgICAgICB9KTtcbiAgICAgICAgICAgICAgfVxuICAgICAgICAgICAgfSk7XG5cbiAgICAgICAgICAgIGlmIChhbmd1bGFyLmlzRGVmaW5lZChhdHRycy5kb1VwbG9hZCkpIHtcbiAgICAgICAgICAgICAgc2NvcGUuJHdhdGNoKGF0dHJzLmRvVXBsb2FkLCBmdW5jdGlvbih2YWx1ZSkge1xuICAgICAgICAgICAgICAgIGlmICh2YWx1ZSkgdXBsb2FkRmlsZSgpO1xuICAgICAgICAgICAgICB9KTtcbiAgICAgICAgICAgIH1cbiAgICAgICAgICB9XG4gICAgICAgIH07XG4gICAgICB9LFxuICAgICAgdGVtcGxhdGVVcmw6ICduZy1zM3VwbG9hZC5odG1sJ1xuICAgIH07XG4gIH1dKTtcbiJdfQ==;
 angular.module('ngS3upload').run(['$templateCache', function($templateCache) {
   'use strict';
 
-  $templateCache.put('theme/bootstrap2.html',
+  $templateCache.put('ng-s3upload.html',
     "<div class=\"upload-wrap\">\n" +
-    "  <button class=\"btn btn-primary\" type=\"button\"><span ng-if=\"!filename\">Choose file</span><span ng-if=\"filename\">Replace file</span></button>\n" +
-    "  <a ng-href=\"{{ filename  }}\" target=\"_blank\" class=\"\" ng-if=\"filename\" > Stored file </a>\n" +
-    "  <div class=\"progress progress-striped\" ng-class=\"{active: uploading}\" ng-show=\"attempt\" style=\"margin-top: 10px\">\n" +
-    "    <div class=\"bar\" style=\"width: {{ progress }}%;\" ng-class=\"barClass()\"></div>\n" +
-    "    </div>\n" +
-    "  <input type=\"file\" style=\"display: none\"/>\n" +
-    "</div>"
-  );
-
-
-  $templateCache.put('theme/bootstrap3.html',
-    "<div class=\"upload-wrap\">\n" +
-    "  <button class=\"btn btn-primary\" type=\"button\"><span ng-if=\"!filename\">Choose file</span><span ng-if=\"filename\">Replace file</span></button>\n" +
-    "  <a ng-href=\"{{ filename }}\" target=\"_blank\" class=\"\" ng-if=\"filename\" > Stored file </a>\n" +
-    "  <div class=\"progress\">\n" +
-    "    <div class=\"progress-bar progress-bar-striped\" ng-class=\"{active: uploading}\" role=\"progressbar\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: {{ progress }}%; margin-top: 10px\" ng-class=\"barClass()\">\n" +
+    "  <style scoped>\n" +
+    "    #s3-drop-target{\n" +
+    "      height: 100px;\n" +
+    "      width: 100%;\n" +
+    "      margin-bottom: 10px;\n" +
+    "      display: flex !important;\n" +
+    "      flex-direction: column;\n" +
+    "      justify-content: center;\n" +
+    "      align-items: center;\n" +
+    "      border-radius: 8px;\n" +
+    "      border: 3px dashed #999;\n" +
+    "      color: #999;\n" +
+    "      font-size: 24px;\n" +
+    "      font-weight: bold;\n" +
+    "      text-transform: capitalize;\n" +
+    "      background-color: rgb(238, 238, 238);\n" +
+    "    }\n" +
+    "\n" +
+    "    #s3-drop-target.hover{\n" +
+    "      border: 3px dashed #777;\n" +
+    "      color: #777;\n" +
+    "      background-color: rgb(225, 225, 225);\n" +
+    "    }\n" +
+    "\n" +
+    "  </style>\n" +
+    "  <button class=\"btn btn-primary\" type=\"button\" style=\"margin-bottom: 10px\" id=\"s3-button-target\">\n" +
+    "    <span>{{buttonText}}</span>\n" +
+    "  </button>\n" +
+    "\n" +
+    "  <div id=\"s3-drop-target\"> {{dropText}}</div>\n" +
+    "  <div class=\"progress\" >\n" +
+    "    <div class=\"progress-bar progress-bar-striped\" ng-class=\"{active: uploading}\" role=\"progressbar\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: {{ progress }}%;\" ng-class=\"barClass()\">\n" +
     "      <span class=\"sr-only\">{{progress}}% Complete</span>\n" +
     "    </div>\n" +
     "  </div>\n" +
-    "  <input type=\"file\" style=\"display: none\"/>\n" +
-    "</div>"
+    "  <input type=\"file\" style=\"display: none\" id=\"s3-file-target\"/>\n" +
+    "</div>\n"
   );
 
 }]);
-})(window, document);

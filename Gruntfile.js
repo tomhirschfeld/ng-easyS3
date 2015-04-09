@@ -1,7 +1,9 @@
 module.exports = function (grunt) {
+  'use strict';
+  require('load-grunt-tasks')(grunt);
   // * Read command-line switches
   // - Read in --browsers CLI option; split it on commas into an array if it's a string, otherwise ignore it
-  var browsers = typeof grunt.option('browsers') == 'string' ? grunt.option('browsers').split(',') : undefined;
+  var browsers = typeof grunt.option('browsers') === 'string' ? grunt.option('browsers').split(',') : undefined;
 
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
@@ -9,7 +11,7 @@ module.exports = function (grunt) {
     ngtemplates:  {
       app:        {
         cwd:      'src/<%= library.name %>/templates',
-        src:      'theme/**.html',
+        src:      '**.html',
         dest:     '.tmp/templates.js',
         options: {
           module:   'ngS3upload'
@@ -18,20 +20,30 @@ module.exports = function (grunt) {
     },
     concat: {
       options: {
-        separator: ''
+        separator: ';\n'
       },
       library: {
         src: [
-          'src/<%= library.name %>/<%= library.name %>.prefix',
-          'src/<%= library.name %>/<%= library.name %>.js',
-          'src/<%= library.name %>/services/**/*.js',
-          'src/<%= library.name %>/directives/**/*.js',
-          'src/<%= library.name %>/filters/**/*.js',
+          '.tmp/js/src/<%= library.name %>/<%= library.name %>.prefix',
+          '.tmp/js/src/<%= library.name %>/<%= library.name %>.js',
+          '.tmp/js/src/<%= library.name %>/services/**/*.js',
+          '.tmp/js/src/<%= library.name %>/directives/**/*.js',
+          '.tmp/js/src/<%= library.name %>/filters/**/*.js',
           '<%= ngtemplates.app.dest %>',
-          'src/<%= library.name %>/<%= library.name %>.suffix'
+          '.tmp/js/src/<%= library.name %>/<%= library.name %>.suffix'
         ],
         dest: 'build/<%= library.name %>.js'
       }
+    },
+    'babel': {
+        options: {
+            sourceMap: 'inline'
+        },
+        source: {
+            expand: true,
+            src: ['src/**/*.js'],
+            dest: '.tmp/js/'
+        }
     },
     uglify: {
       options: {
@@ -39,7 +51,7 @@ module.exports = function (grunt) {
       },
       jid: {
         files: {
-          'build/<%= library.name %>.min.js': ['<%= concat.library.dest %>']
+          'build/<%= library.name %>.min.js': ['build/<%= library.name %>.js']
         }
       }
     },
@@ -79,7 +91,7 @@ module.exports = function (grunt) {
     },
     watch: {
       options: {
-        livereload: true
+        livereload: false
       },
       files: [
         'Gruntfile.js',
@@ -100,18 +112,8 @@ module.exports = function (grunt) {
     }
   });
 
-  // Load grunt-karma task plugin
-  grunt.loadNpmTasks('grunt-karma');
-
-  grunt.loadNpmTasks('grunt-contrib-uglify');
-  grunt.loadNpmTasks('grunt-contrib-jshint');
-  grunt.loadNpmTasks('grunt-contrib-concat');
-  grunt.loadNpmTasks('grunt-contrib-watch');
-  grunt.loadNpmTasks('grunt-contrib-clean');
-  grunt.loadNpmTasks('grunt-angular-templates');
-
   grunt.registerTask('test', ['jshint', 'karma:unit']);
-  grunt.registerTask('default', ['clean:dist','jshint:beforeConcat', 'ngtemplates', 'concat', 'jshint:afterConcat', 'uglify']);
+  grunt.registerTask('default', ['clean:dist','jshint:beforeConcat', 'ngtemplates', 'babel', 'concat', 'uglify']);
   grunt.registerTask('livereload', ['default', 'watch']);
 
 };
