@@ -114,6 +114,8 @@ angular.module('ngS3upload.directives', []).
               if(!mimeTypeMatch){
                 if(typeof(sweetAlert) === 'function'){
                   return sweetAlert('File Type Error', opts.errorText,  'error');
+                } else if(typeof(swal) === 'function'){
+                  return swal('File Type Error', opts.errorText,  'error');
                 }
                 return alert('File Type Error: ' + opts.errorText);
               }
