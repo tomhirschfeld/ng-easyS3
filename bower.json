@@ -1,6 +1,6 @@
 {
   "name": "ng-easyS3",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "main": "build/ng-s3upload.js",
   "dependencies": {
     "angular": ">=1.2.0",
