@@ -1,5 +1,5 @@
 angular.module('ngS3upload.services', []).
-  service('S3Uploader', ['$http', '$q', '$window', function ($http, $q, $window) {
+  service('S3Uploader', ['$http', '$q', '$window', '$timeout', function ($http, $q, $window, $timeout) {
     this.uploads = 0;
     var self = this;
 
@@ -65,6 +65,8 @@ angular.module('ngS3upload.services', []).
         scope.$apply(function () {
           self.uploads--;
           scope.uploading = false;
+          //zero out progress for animation
+          $timeout(function(){scope.progress = 0}, 300);
           if (xhr.status === 204) { // successful upload
             scope.success = true;
             deferred.resolve(xhr);

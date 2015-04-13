@@ -1,0 +1,107 @@
+<div class="upload-wrap">
+  <style scoped>
+    #s3-drop-target{
+      height: 100px;
+      width: 100%;
+      display: flex !important;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      border-radius: 8px;
+      border: 3px dashed #999;
+      color: #999;
+      font-size: 24px;
+      font-weight: bold;
+      text-transform: capitalize;
+      background-color: rgb(238, 238, 238);
+    }
+
+    #s3-drop-target.hover{
+      border: 3px dashed #777;
+      color: #777;
+      background-color: rgb(225, 225, 225);
+    }
+
+    #s3-drop-target:hover{
+      border: 3px dashed #777;
+      color: #777;
+      background-color: rgb(225, 225, 225);
+      cursor: pointer;
+    }
+
+    .progress{
+      margin-bottom: 0;
+      height: 50%;
+    }
+
+    .S3-front, .S3-back{
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    /* entire container, keeps perspective */
+    .S3-display {
+      perspective: 1000;
+      position: relative;
+    }
+    /* flip the pane when hovered */
+    .S3-display.S3-uploading .S3-flipper {
+      transform: rotateX(-180deg);
+    }
+
+    .S3-display, .S3-front, .S3-back {
+      width: 100%;
+      height: 100px;
+    }
+
+    /* flip speed goes here */
+    .S3-flipper {
+      transition: 0.3s;
+      transform-style: preserve-3d;
+      position: relative;
+      transform-origin: 100% 50px; /* half of height */*/
+    }
+
+    /* hide back of pane during swap */
+    .S3-front, .S3-back {
+      backface-visibility: hidden;
+
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+
+    /* front pane, placed above back */
+    .S3-front {
+      z-index: 2;
+      /* for firefox 31 */
+      transform: rotateX(0deg);
+    }
+
+    /* back, initially hidden pane */
+    .S3-back {
+      transform: rotateX(180deg);
+    }
+
+
+  </style>
+  <div class="S3-display" ng-class="{'S3-uploading': uploading}">
+    <div class="S3-flipper">
+      <div class="S3-front">
+        <div id="s3-drop-target">
+          <span>{{dropText}}</span>
+          <span ng-show="displayError" class="text-danger"> File Type Error: {{errorText}}</span>
+        </div>
+      </div>
+      <div class="S3-back">
+        <div class="progress">
+          <div class="progress-bar" ng-class="{'active': uploading, 'bar-success': attempt && !uploading && success}" role="progressbar" aria-valuemin="0" aria-valuemax="100" style="width: {{ progress }}%;">
+            <span class="sr-only">{{progress}}% Complete</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <input type="file" style="display: none" id="s3-file-target"/>
+</div>

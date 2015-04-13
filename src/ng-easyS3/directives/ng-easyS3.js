@@ -11,12 +11,6 @@ angular.module('ngS3upload.directives', []).
         $scope.attempt = false;
         $scope.success = false;
         $scope.uploading = false;
-
-        $scope.barClass = function () {
-          return {
-            "bar-success": $scope.attempt && !$scope.uploading && $scope.success
-          };
-        };
       }],
       compile: function (element, attr, linker) {
         return {
@@ -45,19 +39,19 @@ angular.module('ngS3upload.directives', []).
             var bucket = scope.$eval(attrs.bucket);
             scope.buttonText = opts.buttonText;
             scope.dropText = opts.dropText;
+            scope.errorText = opts.errorText;
+            scope.displayError = false;
+
 
             // Bind the button click event
-            var button = angular.element(document.getElementById('s3-button-target')),
-              file = angular.element(element.find("input"))[0];
-            button.bind('click', function (e) {
+            var file = document.getElementById("s3-file-target"),
+              filedrag = document.getElementById("s3-drop-target");
+
+            filedrag.addEventListener('click', function (e) {
               file.click();
             });
 
             function Init() {
-
-                var fileselect = document.getElementById("s3-file-target"),
-                  filedrag = document.getElementById("s3-drop-target");
-
                 // file drop
                 filedrag.addEventListener("dragover", FileDragHover, false);
                 filedrag.addEventListener("dragleave", FileDragHover, false);
@@ -112,13 +106,10 @@ angular.module('ngS3upload.directives', []).
               }
 
               if(!mimeTypeMatch){
-                if(typeof(sweetAlert) === 'function'){
-                  return sweetAlert('File Type Error', opts.errorText,  'error');
-                } else if(typeof(swal) === 'function'){
-                  return swal('File Type Error', opts.errorText,  'error');
-                }
-                return alert('File Type Error: ' + opts.errorText);
+                scope.displayError = true;
+                return;
               }
+              scope.displayError = false;
               ext = filename.split('.').pop();
 
               if(angular.isObject(opts.getManualOptions)) {
@@ -182,6 +173,6 @@ angular.module('ngS3upload.directives', []).
           }
         };
       },
-      templateUrl: 'ng-s3upload.html'
+      templateUrl: 'ng-easyS3.html'
     };
   }]);
