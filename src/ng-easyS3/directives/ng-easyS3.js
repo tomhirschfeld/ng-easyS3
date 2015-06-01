@@ -127,7 +127,10 @@ angular.module('ngS3upload.directives', []).
                   ngModel.$setValidity('uploading', false);
                 }
 
-                var s3Uri = 'http://s3.offline.wi.co/' + bucket;
+                console.log(attrs.s3Url);
+
+                var s3Uri = 'http://' + attrs.s3Url + '/' + bucket;
+                console.log(s3Uri);
                 var key = opts.folder + (new Date()).getTime() + '-' + S3Uploader.randomString(16) + '.' + ext;
                 S3Uploader.upload(scope,
                     s3Uri,
