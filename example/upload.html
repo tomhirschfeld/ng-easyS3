@@ -19,7 +19,7 @@
       <label>Auto upload</label>
       <div s3-upload
           ng-model="files.first"
-            bucket="'schlumberger_swi_images_dev'"
+            bucket="'test'"
             s3-upload-options="{getOptionsUri: 'http://localhost/api/files/s3_access_token', mimeTypes:['image/*'], buttonText: 'Select Image File', dropText: 'Drop Image File', errorText: 'Must Use Image'}"
       ></div>
     </div>

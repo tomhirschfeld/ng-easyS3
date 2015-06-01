@@ -1,4 +1,4 @@
-
+/*eslint-disable */
 angular.module('ngS3upload.directives', []).
   directive('s3Upload', ['$parse', 'S3Uploader', 'ngS3Config', function ($parse, S3Uploader, ngS3Config) {
     return {
@@ -127,7 +127,7 @@ angular.module('ngS3upload.directives', []).
                   ngModel.$setValidity('uploading', false);
                 }
 
-                var s3Uri = 'https://' + bucket + '.s3.amazonaws.com/';
+                var s3Uri = 'http://s3.offline.wi.co/' + bucket;
                 var key = opts.folder + (new Date()).getTime() + '-' + S3Uploader.randomString(16) + '.' + ext;
                 S3Uploader.upload(scope,
                     s3Uri,
@@ -139,7 +139,7 @@ angular.module('ngS3upload.directives', []).
                     s3Options.signature,
                     selectedFile
                   ).then(function () {
-                    ngModel.$setViewValue(s3Uri + key);
+                    ngModel.$setViewValue(s3Uri + '/' + key);
                     scope.filename = ngModel.$viewValue;
 
                     if (opts.enableValidation) {
